@@ -36,6 +36,8 @@ import SearchIcon from '@material-ui/icons/Search';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
+import Popup from './Popup';
+import InputForm from './InputForm';
 
 function createData(name, calories, fat, carbs, protein) {
   return { name, calories, fat, carbs, protein };
@@ -270,7 +272,13 @@ const useToolbarStyles = makeStyles((theme) => ({
 
 const EnhancedTableToolbar = (props) => {
   const classes = useToolbarStyles();
-  const { numSelected, searchBox, SearchClose, SearchOpen } = props;
+  const {
+    numSelected,
+    searchBox,
+    SearchClose,
+    SearchOpen,
+    setOpenPopup,
+  } = props;
 
   return (
     <Toolbar
@@ -321,6 +329,7 @@ const EnhancedTableToolbar = (props) => {
             size='small'
             style={{ width: 100, height: 30, marginTop: 10, fontSize: 12 }}
             startIcon={<AddIcon />}
+            onClick={() => setOpenPopup(true)}
           >
             Add New
           </Button>
@@ -383,6 +392,7 @@ const EnhancedTable = (props) => {
   const [dense, setDense] = React.useState(true);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [searchBox, setSearchBox] = React.useState(false);
+  const [openPopup, setOpenPopup] = React.useState(false);
 
   const SearchOpen = () => {
     setSearchBox(true);
@@ -455,6 +465,7 @@ const EnhancedTable = (props) => {
           SearchOpen={SearchOpen}
           SearchClose={SearchClose}
           searchBox={searchBox}
+          setOpenPopup={setOpenPopup}
         />
         <TableContainer>
           <Table
@@ -550,6 +561,9 @@ const EnhancedTable = (props) => {
         control={<Switch checked={dense} onChange={handleChangeDense} />}
         label='Dense padding'
       />
+      <Popup setOpenPopup={setOpenPopup} openPopup={openPopup}>
+        <InputForm />
+      </Popup>
     </div>
   );
 };
