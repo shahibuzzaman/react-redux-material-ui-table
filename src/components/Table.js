@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
 import clsx from 'clsx';
 import {
   lighten,
@@ -38,6 +39,7 @@ import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 import Popup from './Popup';
 import InputForm from './InputForm';
+import { userRoleList } from '../actions/userRoleAction';
 
 function createData(name, calories, fat, carbs, protein) {
   return { name, calories, fat, carbs, protein };
@@ -49,10 +51,11 @@ const StyledTableCell = withStyles((theme) => ({
   head: {
     backgroundColor: theme.palette.info.light,
     color: theme.palette.common.black,
+    fontWeight: 'bold',
   },
   body: {
     fontSize: 16,
-    fontWeight: 900,
+    fontWeight: 'bold',
   },
 }))(TableCell);
 
@@ -166,7 +169,7 @@ function getComparator(order, orderBy) {
 }
 
 function stableSort(array, comparator) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
+  const stabilizedThis = array.map((el, id) => [el, id]);
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
     if (order !== 0) return order;
@@ -177,16 +180,21 @@ function stableSort(array, comparator) {
 
 const headCells = [
   {
-    id: 'name',
+    id: 1,
     numeric: false,
     disablePadding: true,
-    label: 'Dessert (100g serving)',
+    label: 'Role Name',
   },
-  { id: 'calories', numeric: true, disablePadding: false, label: 'Calories' },
-  { id: 'fat', numeric: true, disablePadding: false, label: 'Fat (g)' },
-  { id: 'carbs', numeric: true, disablePadding: false, label: 'Carbs (g)' },
-  { id: 'protein', numeric: true, disablePadding: false, label: 'Protein (g)' },
-  { id: 'actions', numeric: true, disablePadding: false, label: 'Actions' },
+  {
+    id: 2,
+    numeric: true,
+    disablePadding: false,
+    label: 'Role Description',
+  },
+  { id: 3, numeric: true, disablePadding: false, label: 'Role Status' },
+  { id: 4, numeric: true, disablePadding: false, label: 'Created By' },
+  { id: 5, numeric: true, disablePadding: false, label: 'Modified By' },
+  { id: 6, numeric: true, disablePadding: false, label: 'Actions' },
 ];
 
 function EnhancedTableHead(props) {
@@ -311,7 +319,7 @@ const EnhancedTableToolbar = (props) => {
           id='tableTitle'
           component='div'
         >
-          Nutrition
+          User Role List
         </Typography>
       )}
 
@@ -394,6 +402,17 @@ const EnhancedTable = (props) => {
   const [searchBox, setSearchBox] = React.useState(false);
   const [openPopup, setOpenPopup] = React.useState(false);
 
+  const dispatch = useDispatch();
+  const role = useSelector((state) => state.role);
+
+  const { roles } = role;
+
+  console.log(roles);
+
+  useEffect(() => {
+    dispatch(userRoleList());
+  }, [dispatch]);
+
   const SearchOpen = () => {
     setSearchBox(true);
   };
@@ -410,7 +429,7 @@ const EnhancedTable = (props) => {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = rows.map((n) => n.name);
+      const newSelecteds = roles.map((n) => n.id);
       setSelected(newSelecteds);
       setSearchBox(false);
       return;
@@ -455,7 +474,7 @@ const EnhancedTable = (props) => {
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
   const emptyRows =
-    rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+    rowsPerPage - Math.min(rowsPerPage, roles.length - page * rowsPerPage);
 
   return (
     <div className={classes.root}>
@@ -481,23 +500,23 @@ const EnhancedTable = (props) => {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={rows.length}
+              rowCount={roles.length}
             />
             <TableBody>
-              {stableSort(rows, getComparator(order, orderBy))
+              {stableSort(roles, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  const isItemSelected = isSelected(row.name);
-                  const labelId = `enhanced-table-checkbox-${index}`;
+                .map((row, id) => {
+                  const isItemSelected = isSelected(row.id);
+                  const labelId = `enhanced-table-checkbox-${id}`;
 
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.name)}
+                      onClick={(event) => handleClick(event, row.id)}
                       role='checkbox'
                       aria-checked={isItemSelected}
                       tabIndex={-1}
-                      key={row.name}
+                      key={row.id}
                       selected={isItemSelected}
                     >
                       <TableCell padding='checkbox'>
@@ -512,12 +531,14 @@ const EnhancedTable = (props) => {
                         scope='row'
                         padding='none'
                       >
-                        {row.name}
+                        {row.role_name}
                       </TableCell>
-                      <TableCell align='right'>{row.calories}</TableCell>
-                      <TableCell align='right'>{row.fat}</TableCell>
-                      <TableCell align='right'>{row.carbs}</TableCell>
-                      <TableCell align='right'>{row.protein}</TableCell>
+                      <TableCell align='right'>
+                        {row.role_descriotion}
+                      </TableCell>
+                      <TableCell align='right'>{row.role_status}</TableCell>
+                      <TableCell align='right'>{row.created_by}</TableCell>
+                      <TableCell align='right'>{row.modified_by}</TableCell>
                       <TableCell align='right'>
                         <IconButton
                           aria-label='delete'
@@ -545,7 +566,7 @@ const EnhancedTable = (props) => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
           component='div'
-          count={rows.length}
+          count={roles.length}
           rowsPerPage={rowsPerPage}
           page={page}
           SelectProps={{

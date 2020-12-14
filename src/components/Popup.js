@@ -76,17 +76,18 @@ const Popup = (props) => {
         Role Input Form
       </DialogTitle>
       <DialogContent dividers>{children}</DialogContent>
-      <DialogActions>
+      <DialogActions style={{ padding: 20 }}>
         <Button
           variant='outlined'
-          size='medium'
+          size='small'
           color='primary'
           autoFocus
           onClick={handleClose}
+          style={{ marginRight: 10 }}
         >
           Reset
         </Button>
-        <Button size='medium' color='primary' variant='contained'>
+        <Button size='small' color='primary' variant='contained'>
           Submit
         </Button>
       </DialogActions>
