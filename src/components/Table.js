@@ -41,6 +41,8 @@ import Popup from './Popup';
 import InputForm from './InputForm';
 import { userRoleList } from '../actions/userRoleAction';
 
+import InfoIcon from '@material-ui/icons/Info';
+
 function createData(name, calories, fat, carbs, protein) {
   return { name, calories, fat, carbs, protein };
 }
@@ -51,11 +53,9 @@ const StyledTableCell = withStyles((theme) => ({
   head: {
     backgroundColor: theme.palette.info.light,
     color: theme.palette.common.black,
-    fontWeight: 'bold',
   },
   body: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 12,
   },
 }))(TableCell);
 
@@ -367,16 +367,16 @@ EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
 };
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = (theme) => ({
   root: {
     width: '100%',
-  },
-  paper: {
-    width: '100%',
-    marginBottom: theme.spacing(2),
+    fontSize: '0.1em',
   },
   table: {
     minWidth: 750,
+  },
+  tableCell: {
+    fontSize: '0.1em',
   },
   visuallyHidden: {
     border: 0,
@@ -389,7 +389,7 @@ const useStyles = makeStyles((theme) => ({
     top: 20,
     width: 1,
   },
-}));
+});
 
 const EnhancedTable = (props) => {
   const classes = useStyles();
@@ -401,6 +401,9 @@ const EnhancedTable = (props) => {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [searchBox, setSearchBox] = React.useState(false);
   const [openPopup, setOpenPopup] = React.useState(false);
+  const [item, setItem] = React.useState('');
+
+  console.log('item', item);
 
   const dispatch = useDispatch();
   const role = useSelector((state) => state.role);
@@ -492,6 +495,7 @@ const EnhancedTable = (props) => {
             aria-labelledby='tableTitle'
             size={dense ? 'small' : 'medium'}
             aria-label='enhanced table'
+            size='small'
           >
             <EnhancedTableHead
               classes={classes}
@@ -508,42 +512,55 @@ const EnhancedTable = (props) => {
                 .map((row, id) => {
                   const isItemSelected = isSelected(row.id);
                   const labelId = `enhanced-table-checkbox-${id}`;
-
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.id)}
                       role='checkbox'
                       aria-checked={isItemSelected}
                       tabIndex={-1}
                       key={row.id}
                       selected={isItemSelected}
                     >
-                      <TableCell padding='checkbox'>
+                      <TableCell
+                        onClick={(event) => handleClick(event, row.id)}
+                        padding='checkbox'
+                        className={classes.tableCell}
+                      >
                         <Checkbox
                           checked={isItemSelected}
                           inputProps={{ 'aria-labelledby': labelId }}
+                          size='small'
                         />
                       </TableCell>
                       <TableCell
-                        component='th'
                         id={labelId}
                         scope='row'
                         padding='none'
+                        style={{ fontSize: 12 }}
                       >
                         {row.role_name}
                       </TableCell>
-                      <TableCell align='right'>
+                      <TableCell align='right' style={{ fontSize: 12 }}>
                         {row.role_descriotion}
                       </TableCell>
-                      <TableCell align='right'>{row.role_status}</TableCell>
-                      <TableCell align='right'>{row.created_by}</TableCell>
-                      <TableCell align='right'>{row.modified_by}</TableCell>
-                      <TableCell align='right'>
+                      <TableCell align='right' style={{ fontSize: 12 }}>
+                        {row.role_status}
+                      </TableCell>
+                      <TableCell align='right' style={{ fontSize: 12 }}>
+                        {row.created_by}
+                      </TableCell>
+                      <TableCell align='right' style={{ fontSize: 12 }}>
+                        {row.modified_by}
+                      </TableCell>
+                      <TableCell align='center'>
                         <IconButton
                           aria-label='delete'
                           size='small'
-                          style={{ marginRight: 5 }}
+                          onClick={() => {
+                            setOpenPopup(true);
+                            setItem(row);
+                            console.log(row);
+                          }}
                         >
                           <EditIcon fontSize='small' />
                         </IconButton>
@@ -551,12 +568,15 @@ const EnhancedTable = (props) => {
                         <IconButton aria-label='delete' size='small'>
                           <DeleteIcon fontSize='small' />
                         </IconButton>
+                        <IconButton aria-label='info' size='small'>
+                          <InfoIcon fontSize='small' />
+                        </IconButton>
                       </TableCell>
                     </TableRow>
                   );
                 })}
               {emptyRows > 0 && (
-                <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
+                <TableRow style={{ height: 33 * emptyRows }}>
                   <TableCell colSpan={6} />
                 </TableRow>
               )}
@@ -578,13 +598,7 @@ const EnhancedTable = (props) => {
           ActionsComponent={TablePaginationActions}
         />
       </Paper>
-      <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label='Dense padding'
-      />
-      <Popup setOpenPopup={setOpenPopup} openPopup={openPopup}>
-        <InputForm />
-      </Popup>
+      <Popup setOpenPopup={setOpenPopup} openPopup={openPopup}></Popup>
     </div>
   );
 };

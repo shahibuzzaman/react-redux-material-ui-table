@@ -6,45 +6,9 @@ import InputBase from '@material-ui/core/InputBase';
 import FormLabel from '@material-ui/core/FormLabel';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
-import InputLabel from '@material-ui/core/InputLabel';
 import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-
-const BootstrapInput = withStyles((theme) => ({
-  root: {
-    'label + &': {
-      marginTop: theme.spacing(3),
-    },
-  },
-  input: {
-    borderRadius: 4,
-    position: 'relative',
-    backgroundColor: theme.palette.common.white,
-    border: '1px solid #ced4da',
-    fontSize: 16,
-    flexGrow: 1,
-    padding: '10px 12px',
-    transition: theme.transitions.create(['border-color', 'box-shadow']),
-    // Use the system font instead of the default Roboto font.
-    fontFamily: [
-      '-apple-system',
-      'BlinkMacSystemFont',
-      '"Segoe UI"',
-      'Roboto',
-      '"Helvetica Neue"',
-      'Arial',
-      'sans-serif',
-      '"Apple Color Emoji"',
-      '"Segoe UI Emoji"',
-      '"Segoe UI Symbol"',
-    ].join(','),
-    '&:focus': {
-      boxShadow: `${fade(theme.palette.primary.main, 0.25)} 0 0 0 0.2rem`,
-      borderColor: theme.palette.primary.main,
-    },
-  },
-}))(InputBase);
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -54,29 +18,33 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
   },
   avatar: {
-    margin: theme.spacing(1),
+    margin: theme.spacing(0),
     backgroundColor: theme.palette.secondary.main,
   },
   form: {
     width: '100%', // Fix IE 11 issue.
-    marginTop: theme.spacing(3),
+    marginTop: theme.spacing(1),
+    fontSize: 12,
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
 }));
 
-const InputForm = () => {
+const InputForm = (props) => {
   const classes = useStyles();
 
-  const [value, setValue] = React.useState('female');
-
-  const [curTime, setCurTime] = React.useState({
-    curTime: new Date().toLocaleString(),
-  });
+  const {
+    role_status,
+    setRoleStatus,
+    role_name,
+    setRoleName,
+    role_descriotion,
+    setRoleDescription,
+  } = props;
 
   const handleChange = (event) => {
-    setValue(event.target.value);
+    setRoleStatus(event.target.value);
   };
 
   return (
@@ -93,6 +61,8 @@ const InputForm = () => {
               label='Role Name'
               autoFocus
               size='small'
+              value={role_name}
+              onChange={(e) => setRoleName(e.target.value)}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -104,6 +74,8 @@ const InputForm = () => {
               fullWidth
               rows={4}
               variant='outlined'
+              value={role_descriotion}
+              onChange={(e) => setRoleDescription(e.target.value)}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -112,54 +84,26 @@ const InputForm = () => {
               <RadioGroup
                 aria-label='gender'
                 name='gender1'
-                value={value}
+                value={role_status}
                 onChange={handleChange}
                 style={{ display: 'flex', flexDirection: 'row' }}
               >
                 <FormControlLabel
-                  value='active'
-                  control={<Radio />}
-                  label='Active'
+                  value='A'
+                  control={<Radio size='small' />}
+                  label={
+                    <Typography style={{ fontSize: 14 }}>Active</Typography>
+                  }
                 />
                 <FormControlLabel
-                  value='deactivate'
-                  control={<Radio />}
-                  label='Deactivate'
+                  value='D'
+                  control={<Radio size='small' />}
+                  label={
+                    <Typography style={{ fontSize: 14 }}>Deactivate</Typography>
+                  }
                 />
               </RadioGroup>
             </FormControl>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              name='role name'
-              variant='outlined'
-              required
-              fullWidth
-              id='role_name'
-              label='Created By'
-              autoFocus
-              size='small'
-              defaultValue='User Name'
-              InputProps={{
-                readOnly: true,
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              id='datetime-local'
-              label='Created Date'
-              type='datetime-local'
-              defaultValue={curTime.curTime}
-              className={classes.textField}
-              InputLabelProps={{
-                shrink: true,
-              }}
-              InputProps={{
-                readOnly: true,
-              }}
-              size='small'
-            />
           </Grid>
         </Grid>
       </form>

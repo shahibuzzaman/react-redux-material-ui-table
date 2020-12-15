@@ -9,6 +9,10 @@ import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import Typography from '@material-ui/core/Typography';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import InputForm from './InputForm';
+import { useDispatch, useSelector } from 'react-redux';
+import { userRoleCreateAction } from '../actions/userRoleAction';
+import { USER_ROLE_CREATE_RESET } from '../constants/userRoleConstant';
 
 const styles = (theme) => ({
   root: {
@@ -29,8 +33,11 @@ const DialogTitle = withStyles(styles)((props) => {
   const { children, classes, onClose, ...other } = props;
   return (
     <MuiDialogTitle disableTypography className={classes.root} {...other}>
-      <PersonAddIcon style={{ fontSize: 30 }} />
-      <Typography variant='h6' style={{ marginLeft: 20 }}>
+      <PersonAddIcon style={{ fontSize: 25 }} />
+      <Typography
+        variant='h6'
+        style={{ marginLeft: 20, fontSize: 16, fontWeight: '500' }}
+      >
         {children}
       </Typography>
       {onClose ? (
@@ -60,7 +67,50 @@ const DialogActions = withStyles((theme) => ({
 }))(MuiDialogActions);
 
 const Popup = (props) => {
-  const { children, openPopup, setOpenPopup } = props;
+  const { openPopup, setOpenPopup } = props;
+  const [role_status, setRoleStatus] = React.useState('active');
+  const [role_name, setRoleName] = React.useState('');
+  const [role_descriotion, setRoleDescription] = React.useState('');
+
+  const created_by = 'Shahibuzzaman';
+  const modified_by = 'Shahibuzzaman2';
+
+  const dispatch = useDispatch();
+  const roleCreate = useSelector((state) => state.roleCreate);
+  const { roleCreates } = roleCreate;
+
+  console.log(roleCreates);
+
+  console.log(
+    'role data',
+    role_name,
+    role_descriotion,
+    role_status,
+    created_by,
+    modified_by,
+  );
+
+  const submitHandler = (e) => {
+    e.preventDefault();
+    dispatch(
+      userRoleCreateAction(
+        role_name,
+        role_descriotion,
+        role_status,
+        created_by,
+        modified_by,
+      ),
+    );
+    setOpenPopup(false);
+  };
+
+  const resetForm = (e) => {
+    e.preventDefault();
+    dispatch({ type: USER_ROLE_CREATE_RESET });
+    setRoleStatus('');
+    setRoleName('');
+    setRoleDescription('');
+  };
 
   const handleClose = () => {
     setOpenPopup(false);
@@ -75,19 +125,33 @@ const Popup = (props) => {
       <DialogTitle id='customized-dialog-title' onClose={handleClose}>
         Role Input Form
       </DialogTitle>
-      <DialogContent dividers>{children}</DialogContent>
+      <DialogContent dividers>
+        <InputForm
+          role_status={role_status}
+          setRoleStatus={setRoleStatus}
+          role_name={role_name}
+          setRoleName={setRoleName}
+          role_descriotion={role_descriotion}
+          setRoleDescription={setRoleDescription}
+        />
+      </DialogContent>
       <DialogActions style={{ padding: 20 }}>
         <Button
           variant='outlined'
           size='small'
           color='primary'
           autoFocus
-          onClick={handleClose}
+          onClick={resetForm}
           style={{ marginRight: 10 }}
         >
           Reset
         </Button>
-        <Button size='small' color='primary' variant='contained'>
+        <Button
+          size='small'
+          color='primary'
+          variant='contained'
+          onClick={submitHandler}
+        >
           Submit
         </Button>
       </DialogActions>
