@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -11,8 +11,7 @@ import Typography from '@material-ui/core/Typography';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import InputForm from './InputForm';
 import { useDispatch, useSelector } from 'react-redux';
-import { userRoleCreateAction } from '../actions/userRoleAction';
-import { USER_ROLE_CREATE_RESET } from '../constants/userRoleConstant';
+import { userRoleUpdateAction } from '../actions/userRoleAction';
 
 const styles = (theme) => ({
   root: {
@@ -67,22 +66,30 @@ const DialogActions = withStyles((theme) => ({
 }))(MuiDialogActions);
 
 const Popup = (props) => {
-  const { openPopup, setOpenPopup } = props;
-  const [role_status, setRoleStatus] = React.useState('A');
-  const [role_name, setRoleName] = React.useState('');
-  const [role_descriotion, setRoleDescription] = React.useState('');
+  const { openEditPopup, setOpenEditPopup, item } = props;
+  const [role_status, setRoleStatus] = React.useState(item.role_status);
+  const [role_name, setRoleName] = React.useState(item.role_name);
+  const [role_descriotion, setRoleDescription] = React.useState(
+    item.role_descriotion,
+  );
+  const id = item.id;
 
   const created_by = 'Shahibuzzaman';
   const modified_by = 'Shahibuzzaman2';
 
-  const dispatch = useDispatch();
-  const roleCreate = useSelector((state) => state.roleCreate);
-  const { roleCreates } = roleCreate;
+  useEffect(() => {
+    setRoleStatus(item.role_status);
+    setRoleName(item.role_name);
+    setRoleDescription(item.role_descriotion);
+  }, [item]);
 
-  console.log('added', roleCreates);
+  const dispatch = useDispatch();
+  const roleUpdate = useSelector((state) => state.roleUpdate);
+  const { roleUpdates } = roleUpdate;
 
   console.log(
     'role data',
+    id,
     role_name,
     role_descriotion,
     role_status,
@@ -93,7 +100,8 @@ const Popup = (props) => {
   const submitHandler = (e) => {
     e.preventDefault();
     dispatch(
-      userRoleCreateAction(
+      userRoleUpdateAction(
+        item.id,
         role_name,
         role_descriotion,
         role_status,
@@ -101,32 +109,21 @@ const Popup = (props) => {
         modified_by,
       ),
     );
-    setOpenPopup(false);
-    setRoleStatus('');
-    setRoleName('');
-    setRoleDescription('');
-  };
-
-  const resetForm = (e) => {
-    e.preventDefault();
-    dispatch({ type: USER_ROLE_CREATE_RESET });
-    setRoleStatus('');
-    setRoleName('');
-    setRoleDescription('');
+    setOpenEditPopup(false);
   };
 
   const handleClose = () => {
-    setOpenPopup(false);
+    setOpenEditPopup(false);
   };
 
   return (
     <Dialog
       aria-labelledby='customized-dialog-title'
-      open={openPopup}
+      open={openEditPopup}
       onClose={handleClose}
     >
       <DialogTitle id='customized-dialog-title' onClose={handleClose}>
-        Role Input Form
+        Role Edit
       </DialogTitle>
       <DialogContent dividers>
         <InputForm
@@ -136,6 +133,7 @@ const Popup = (props) => {
           setRoleName={setRoleName}
           role_descriotion={role_descriotion}
           setRoleDescription={setRoleDescription}
+          item={item}
         />
       </DialogContent>
       <DialogActions style={{ padding: 20 }}>
@@ -144,10 +142,10 @@ const Popup = (props) => {
           size='small'
           color='primary'
           autoFocus
-          onClick={resetForm}
+          onClick={handleClose}
           style={{ marginRight: 10 }}
         >
-          Reset
+          Cancel
         </Button>
         <Button
           size='small'
@@ -155,7 +153,7 @@ const Popup = (props) => {
           variant='contained'
           onClick={submitHandler}
         >
-          Submit
+          Update
         </Button>
       </DialogActions>
     </Dialog>

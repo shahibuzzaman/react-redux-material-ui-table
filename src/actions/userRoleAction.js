@@ -9,7 +9,9 @@ import {
   USER_ROLE_UPDATE_REQUEST,
   USER_ROLE_UPDATE_SUCCESS,
   USER_ROLE_UPDATE_FAIL,
-  USER_ROLE_UPDATE_RESET,
+  USER_ROLE_DELETE_REQUEST,
+  USER_ROLE_DELETE_SUCCESS,
+  USER_ROLE_DELETE_FAIL,
 } from '../constants/userRoleConstant';
 
 export const userRoleList = () => async (dispatch) => {
@@ -51,7 +53,6 @@ export const userRoleCreateAction = (
 
     const config = {
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     };
@@ -93,7 +94,14 @@ export const userRoleCreateAction = (
   }
 };
 
-export const userRoleUpdateAction = (roleCreates) => async (dispatch) => {
+export const userRoleUpdateAction = (
+  id,
+  role_name,
+  role_descriotion,
+  role_status,
+  created_by,
+  modified_by,
+) => async (dispatch) => {
   try {
     dispatch({
       type: USER_ROLE_UPDATE_REQUEST,
@@ -107,9 +115,18 @@ export const userRoleUpdateAction = (roleCreates) => async (dispatch) => {
     };
 
     const { data } = await axios.put(
-      `http://bbox.clonestudiobd.com/api/userroles/${roleCreates.id}`,
-      roleCreates,
+      `http://bbox.clonestudiobd.com/api/userroles/${id}`,
+      { role_name, role_descriotion, role_status, created_by, modified_by },
       config,
+    );
+
+    console.log(
+      'update data',
+      role_name,
+      role_descriotion,
+      role_status,
+      created_by,
+      modified_by,
     );
 
     dispatch({
@@ -123,6 +140,40 @@ export const userRoleUpdateAction = (roleCreates) => async (dispatch) => {
         error.response && error.response.data.errors
           ? error.response.data.errors
           : error.errors,
+    });
+  }
+};
+
+export const userRoleDeleteAction = (id) => async (dispatch) => {
+  try {
+    dispatch({
+      type: USER_ROLE_DELETE_REQUEST,
+    });
+
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    };
+
+    console.log('id', id);
+
+    await axios.delete(
+      `http://bbox.clonestudiobd.com/api/userroles/${id}`,
+      config,
+    );
+
+    dispatch({
+      type: USER_ROLE_DELETE_SUCCESS,
+    });
+  } catch (error) {
+    dispatch({
+      type: USER_ROLE_DELETE_FAIL,
+      payload:
+        error.response && error.response.data.error
+          ? error.response.data.error
+          : error.error,
     });
   }
 };

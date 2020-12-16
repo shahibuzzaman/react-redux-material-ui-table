@@ -41,7 +41,10 @@ const InputForm = (props) => {
     setRoleName,
     role_descriotion,
     setRoleDescription,
+    item,
   } = props;
+
+  console.log('edit data', item);
 
   const handleChange = (event) => {
     setRoleStatus(event.target.value);
@@ -61,7 +64,7 @@ const InputForm = (props) => {
               label='Role Name'
               autoFocus
               size='small'
-              value={role_name}
+              defaultValue={item ? item.role_name : null}
               onChange={(e) => setRoleName(e.target.value)}
             />
           </Grid>
@@ -74,7 +77,7 @@ const InputForm = (props) => {
               fullWidth
               rows={4}
               variant='outlined'
-              value={role_descriotion}
+              defaultValue={item ? item.role_descriotion : null}
               onChange={(e) => setRoleDescription(e.target.value)}
             />
           </Grid>
@@ -84,7 +87,7 @@ const InputForm = (props) => {
               <RadioGroup
                 aria-label='gender'
                 name='gender1'
-                value={role_status}
+                defaultValue={item ? item.role_status : null}
                 onChange={handleChange}
                 style={{ display: 'flex', flexDirection: 'row' }}
               >

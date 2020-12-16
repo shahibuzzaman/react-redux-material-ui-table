@@ -5,12 +5,14 @@ import {
   userRoleReducer,
   userRoleCreateReducer,
   userRoleUpdateReducer,
+  userRoleDeleteReducer,
 } from './reducers/userRoleReducer';
 
 const reducer = combineReducers({
   role: userRoleReducer,
   roleCreate: userRoleCreateReducer,
   roleUpdate: userRoleUpdateReducer,
+  roleDelete: userRoleDeleteReducer,
 });
 
 const initialState = {};

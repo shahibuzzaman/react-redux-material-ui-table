@@ -38,8 +38,9 @@ import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 import Popup from './Popup';
+import EditPopup from './EditPopup';
 import InputForm from './InputForm';
-import { userRoleList } from '../actions/userRoleAction';
+import { userRoleList, userRoleDeleteAction } from '../actions/userRoleAction';
 
 import InfoIcon from '@material-ui/icons/Info';
 
@@ -53,6 +54,8 @@ const StyledTableCell = withStyles((theme) => ({
   head: {
     backgroundColor: theme.palette.info.light,
     color: theme.palette.common.black,
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   body: {
     fontSize: 12,
@@ -192,9 +195,9 @@ const headCells = [
     label: 'Role Description',
   },
   { id: 3, numeric: true, disablePadding: false, label: 'Role Status' },
-  { id: 4, numeric: true, disablePadding: false, label: 'Created By' },
-  { id: 5, numeric: true, disablePadding: false, label: 'Modified By' },
-  { id: 6, numeric: true, disablePadding: false, label: 'Actions' },
+  // { id: 4, numeric: true, disablePadding: false, label: 'Created By' },
+  // { id: 5, numeric: true, disablePadding: false, label: 'Modified By' },
+  { id: 4, numeric: true, disablePadding: false, label: 'Actions' },
 ];
 
 function EnhancedTableHead(props) {
@@ -220,6 +223,7 @@ function EnhancedTableHead(props) {
             checked={rowCount > 0 && numSelected === rowCount}
             onChange={onSelectAllClick}
             inputProps={{ 'aria-label': 'select all desserts' }}
+            size='small'
           />
         </StyledTableCell>
         {headCells.map((headCell) => (
@@ -391,6 +395,21 @@ const useStyles = (theme) => ({
   },
 });
 
+const useStylesBootstrap = makeStyles((theme) => ({
+  arrow: {
+    color: theme.palette.common.black,
+  },
+  tooltip: {
+    backgroundColor: theme.palette.common.black,
+  },
+}));
+
+function BootstrapTooltip(props) {
+  const classes = useStylesBootstrap();
+
+  return <Tooltip arrow classes={classes} {...props} />;
+}
+
 const EnhancedTable = (props) => {
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
@@ -401,7 +420,10 @@ const EnhancedTable = (props) => {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [searchBox, setSearchBox] = React.useState(false);
   const [openPopup, setOpenPopup] = React.useState(false);
+  const [openEditPopup, setOpenEditPopup] = React.useState(false);
   const [item, setItem] = React.useState('');
+
+  const [id, setId] = React.useState('');
 
   console.log('item', item);
 
@@ -415,6 +437,10 @@ const EnhancedTable = (props) => {
   useEffect(() => {
     dispatch(userRoleList());
   }, [dispatch]);
+
+  const deleteHandler = () => {
+    dispatch(userRoleDeleteAction(id));
+  };
 
   const SearchOpen = () => {
     setSearchBox(true);
@@ -477,7 +503,8 @@ const EnhancedTable = (props) => {
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
   const emptyRows =
-    rowsPerPage - Math.min(rowsPerPage, roles.length - page * rowsPerPage);
+    rowsPerPage -
+    Math.min(rowsPerPage, roles ? roles.length : null - page * rowsPerPage);
 
   return (
     <div className={classes.root}>
@@ -504,7 +531,7 @@ const EnhancedTable = (props) => {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={roles.length}
+              rowCount={roles ? roles.length : null}
             />
             <TableBody>
               {stableSort(roles, getComparator(order, orderBy))
@@ -544,33 +571,62 @@ const EnhancedTable = (props) => {
                         {row.role_descriotion}
                       </TableCell>
                       <TableCell align='right' style={{ fontSize: 12 }}>
-                        {row.role_status}
+                        {row.role_status == 'A' ? 'Active' : 'Deactivate'}
                       </TableCell>
-                      <TableCell align='right' style={{ fontSize: 12 }}>
+                      {/* <TableCell align='right' style={{ fontSize: 12 }}>
                         {row.created_by}
                       </TableCell>
                       <TableCell align='right' style={{ fontSize: 12 }}>
                         {row.modified_by}
-                      </TableCell>
-                      <TableCell align='center'>
-                        <IconButton
-                          aria-label='delete'
-                          size='small'
-                          onClick={() => {
-                            setOpenPopup(true);
-                            setItem(row);
-                            console.log(row);
-                          }}
-                        >
-                          <EditIcon fontSize='small' />
-                        </IconButton>
+                      </TableCell> */}
+                      <TableCell align='right'>
+                        <Tooltip title='Edit'>
+                          <IconButton
+                            aria-label='delete'
+                            size='small'
+                            onClick={() => {
+                              setOpenEditPopup(true);
+                              setItem(row);
+                              console.log(row);
+                            }}
+                          >
+                            <EditIcon fontSize='small' />
+                          </IconButton>
+                        </Tooltip>
 
-                        <IconButton aria-label='delete' size='small'>
-                          <DeleteIcon fontSize='small' />
-                        </IconButton>
-                        <IconButton aria-label='info' size='small'>
-                          <InfoIcon fontSize='small' />
-                        </IconButton>
+                        <Tooltip title='Delete'>
+                          <IconButton
+                            aria-label='delete'
+                            size='small'
+                            onClick={() => {
+                              setId(row.id);
+                              deleteHandler();
+                            }}
+                          >
+                            <DeleteIcon
+                              fontSize='small'
+                              style={{ fill: 'red' }}
+                            />
+                          </IconButton>
+                        </Tooltip>
+
+                        <BootstrapTooltip
+                          title={
+                            <div>
+                              <p>Created By : {row.created_by}</p>
+                              <p>Created Date : {row.created_date}</p>
+                              <p>Modified By : {row.modified_by}</p>
+                              <p>Modified Date : {row.modified_date}</p>
+                            </div>
+                          }
+                        >
+                          <IconButton aria-label='info' size='small'>
+                            <InfoIcon
+                              fontSize='small'
+                              style={{ fill: '	#ffcc00' }}
+                            />
+                          </IconButton>
+                        </BootstrapTooltip>
                       </TableCell>
                     </TableRow>
                   );
@@ -599,6 +655,11 @@ const EnhancedTable = (props) => {
         />
       </Paper>
       <Popup setOpenPopup={setOpenPopup} openPopup={openPopup}></Popup>
+      <EditPopup
+        setOpenEditPopup={setOpenEditPopup}
+        openEditPopup={openEditPopup}
+        item={item}
+      />
     </div>
   );
 };
