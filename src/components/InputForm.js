@@ -87,7 +87,7 @@ const InputForm = (props) => {
               <RadioGroup
                 aria-label='gender'
                 name='gender1'
-                defaultValue={item ? item.role_status : null}
+                defaultValue={item ? item.role_status : role_status}
                 onChange={handleChange}
                 style={{ display: 'flex', flexDirection: 'row' }}
               >

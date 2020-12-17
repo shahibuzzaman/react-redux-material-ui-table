@@ -40,9 +40,15 @@ import EditIcon from '@material-ui/icons/Edit';
 import Popup from './Popup';
 import EditPopup from './EditPopup';
 import InputForm from './InputForm';
+import DeletePopup from './DeletePopup';
 import { userRoleList, userRoleDeleteAction } from '../actions/userRoleAction';
+import InputLabel from '@material-ui/core/InputLabel';
+import FormControl from '@material-ui/core/FormControl';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import InputAdornment from '@material-ui/core/InputAdornment';
 
 import InfoIcon from '@material-ui/icons/Info';
+import TextField from '@material-ui/core/TextField';
 
 function createData(name, calories, fat, carbs, protein) {
   return { name, calories, fat, carbs, protein };
@@ -171,8 +177,8 @@ function getComparator(order, orderBy) {
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-function stableSort(array, comparator) {
-  const stabilizedThis = array.map((el, id) => [el, id]);
+function stableSort(array, comparator, searchValues) {
+  const stabilizedThis = searchValues.fn(array).map((el, id) => [el, id]);
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
     if (order !== 0) return order;
@@ -290,6 +296,10 @@ const EnhancedTableToolbar = (props) => {
     SearchClose,
     SearchOpen,
     setOpenPopup,
+    handleChange,
+    searchValues,
+    setSearchValues,
+    handleSearch,
   } = props;
 
   return (
@@ -298,16 +308,7 @@ const EnhancedTableToolbar = (props) => {
         [classes.highlight]: numSelected > 0,
       })}
     >
-      {searchBox ? (
-        <Typography
-          className={classes.title}
-          color='inherit'
-          variant='subtitle1'
-          component='div'
-        >
-          Search
-        </Typography>
-      ) : numSelected > 0 ? (
+      {numSelected > 0 ? (
         <Typography
           className={classes.title}
           color='inherit'
@@ -317,14 +318,22 @@ const EnhancedTableToolbar = (props) => {
           {numSelected} selected
         </Typography>
       ) : (
-        <Typography
-          className={classes.title}
-          variant='h6'
-          id='tableTitle'
-          component='div'
-        >
-          User Role List
-        </Typography>
+        <div style={{ flexGrow: 1 }}>
+          <TextField
+            label='Search'
+            id='outlined-size-small'
+            variant='outlined'
+            size='small'
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position='start'>
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+            onChange={handleSearch}
+          />
+        </div>
       )}
 
       {numSelected > 0 ? (
@@ -335,22 +344,11 @@ const EnhancedTableToolbar = (props) => {
         </Tooltip>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'row' }}>
-          <Button
-            variant='outlined'
-            color='primary'
-            size='small'
-            style={{ width: 100, height: 30, marginTop: 10, fontSize: 12 }}
-            startIcon={<AddIcon />}
-            onClick={() => setOpenPopup(true)}
-          >
-            Add New
-          </Button>
-
-          <Tooltip title='Search'>
+          {/* <Tooltip title='Search'>
             <IconButton aria-label='Search' onClick={SearchOpen}>
               <SearchIcon />
             </IconButton>
-          </Tooltip>
+          </Tooltip> */}
           <Tooltip title='Download'>
             <IconButton aria-label='Download'>
               <CloudDownloadIcon />
@@ -393,6 +391,9 @@ const useStyles = (theme) => ({
     top: 20,
     width: 1,
   },
+  title: {
+    flex: '1 1 100%',
+  },
 });
 
 const useStylesBootstrap = makeStyles((theme) => ({
@@ -421,7 +422,13 @@ const EnhancedTable = (props) => {
   const [searchBox, setSearchBox] = React.useState(false);
   const [openPopup, setOpenPopup] = React.useState(false);
   const [openEditPopup, setOpenEditPopup] = React.useState(false);
+  const [openDeletePopup, setOpenDeletePopup] = React.useState(false);
   const [item, setItem] = React.useState('');
+  const [searchValues, setSearchValues] = React.useState({
+    fn: (roles) => {
+      return roles;
+    },
+  });
 
   const [id, setId] = React.useState('');
 
@@ -438,12 +445,21 @@ const EnhancedTable = (props) => {
     dispatch(userRoleList());
   }, [dispatch]);
 
-  const deleteHandler = () => {
-    dispatch(userRoleDeleteAction(id));
-  };
-
   const SearchOpen = () => {
     setSearchBox(true);
+  };
+
+  const handleSearch = (e) => {
+    let target = e.target;
+    setSearchValues({
+      fn: (roles) => {
+        if (target.value == '') return roles;
+        else
+          return roles.filter((x) =>
+            x.role_name.toLowerCase().includes(target.value),
+          );
+      },
+    });
   };
 
   const SearchClose = (value) => {
@@ -500,6 +516,10 @@ const EnhancedTable = (props) => {
     setDense(event.target.checked);
   };
 
+  // const handleChange = (prop) => (event) => {
+  //   setSearchValues({ ...searchValues, [prop]: event.target.value });
+  // };
+
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
   const emptyRows =
@@ -508,6 +528,27 @@ const EnhancedTable = (props) => {
 
   return (
     <div className={classes.root}>
+      <div style={{ display: 'flex' }}>
+        <Typography
+          className={classes.title}
+          variant='h6'
+          id='tableTitle'
+          component='div'
+          style={{ padding: 10, flexGrow: 1 }}
+        >
+          User Role List
+        </Typography>
+        <Button
+          variant='outlined'
+          color='primary'
+          size='small'
+          style={{ width: 100, height: 30, marginTop: 10, fontSize: 12 }}
+          startIcon={<AddIcon />}
+          onClick={() => setOpenPopup(true)}
+        >
+          Add New
+        </Button>
+      </div>
       <Paper className={classes.paper}>
         <EnhancedTableToolbar
           numSelected={selected.length}
@@ -515,6 +556,9 @@ const EnhancedTable = (props) => {
           SearchClose={SearchClose}
           searchBox={searchBox}
           setOpenPopup={setOpenPopup}
+          searchValues={searchValues}
+          setSearchValues={setSearchValues}
+          handleSearch={handleSearch}
         />
         <TableContainer>
           <Table
@@ -534,7 +578,7 @@ const EnhancedTable = (props) => {
               rowCount={roles ? roles.length : null}
             />
             <TableBody>
-              {stableSort(roles, getComparator(order, orderBy))
+              {stableSort(roles, getComparator(order, orderBy), searchValues)
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, id) => {
                   const isItemSelected = isSelected(row.id);
@@ -600,7 +644,8 @@ const EnhancedTable = (props) => {
                             size='small'
                             onClick={() => {
                               setId(row.id);
-                              deleteHandler();
+                              setOpenDeletePopup(true);
+                              setItem(row);
                             }}
                           >
                             <DeleteIcon
@@ -658,6 +703,12 @@ const EnhancedTable = (props) => {
       <EditPopup
         setOpenEditPopup={setOpenEditPopup}
         openEditPopup={openEditPopup}
+        item={item}
+      />
+      <DeletePopup
+        setOpenDeletePopup={setOpenDeletePopup}
+        openDeletePopup={openDeletePopup}
+        id={id}
         item={item}
       />
     </div>

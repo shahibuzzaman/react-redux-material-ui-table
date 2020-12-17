@@ -110,7 +110,6 @@ const Popup = (props) => {
   const resetForm = (e) => {
     e.preventDefault();
     dispatch({ type: USER_ROLE_CREATE_RESET });
-    setRoleStatus('');
     setRoleName('');
     setRoleDescription('');
   };
@@ -144,10 +143,10 @@ const Popup = (props) => {
           size='small'
           color='primary'
           autoFocus
-          onClick={resetForm}
+          onClick={handleClose}
           style={{ marginRight: 10 }}
         >
-          Reset
+          Cancel
         </Button>
         <Button
           size='small'

@@ -41,13 +41,6 @@ const Body = () => {
       <Grid container>
         <Grid item xs={12} sm={2}></Grid>
         <Grid item xs={12} sm={8}>
-          {roleCreates ? (
-            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-              <Alert onClose={handleClose} severity='success'>
-                This is a success message!
-              </Alert>
-            </Snackbar>
-          ) : null}
           <Table />
         </Grid>
         <Grid item xs={12} sm={2}></Grid>
