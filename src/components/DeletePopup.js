@@ -7,7 +7,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
-import { userRoleDeleteAction } from '../actions/userRoleAction';
+import { userRoleDeleteAction, userRoleList } from '../actions/userRoleAction';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction='up' ref={ref} {...props} />;
@@ -25,6 +25,9 @@ const DeletePopup = (props) => {
   const deleteHandler = () => {
     dispatch(userRoleDeleteAction(id));
     setOpenDeletePopup(false);
+    setTimeout(() => {
+      dispatch(userRoleList());
+    }, 1000);
   };
 
   return (

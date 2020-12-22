@@ -11,7 +11,7 @@ import Typography from '@material-ui/core/Typography';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import InputForm from './InputForm';
 import { useDispatch, useSelector } from 'react-redux';
-import { userRoleCreateAction } from '../actions/userRoleAction';
+import { userRoleCreateAction, userRoleList } from '../actions/userRoleAction';
 import { USER_ROLE_CREATE_RESET } from '../constants/userRoleConstant';
 
 const styles = (theme) => ({
@@ -102,15 +102,18 @@ const Popup = (props) => {
       ),
     );
     setOpenPopup(false);
-    setRoleStatus('');
     setRoleName('');
     setRoleDescription('');
+    setTimeout(() => {
+      dispatch(userRoleList());
+    }, 2000);
   };
 
   const resetForm = (e) => {
     e.preventDefault();
     dispatch({ type: USER_ROLE_CREATE_RESET });
     setRoleName('');
+
     setRoleDescription('');
   };
 
